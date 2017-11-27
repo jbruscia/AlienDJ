@@ -1,15 +1,13 @@
-import matplotlib.pyplot as plt
+import matplotlib.pyplot
 from scipy.io import wavfile
 
 def graph_spectrogram(wav_file):
     rate, data = get_wav_info(wav_file)
-    print "Data"
-    print data
     nfft = 256  # Length of the windowing segments
     fs = 256    # Sampling frequency
-    pxx, freqs, bins, im = plt.specgram(data, nfft,fs)
-    plt.axis('off')
-    plt.savefig('sp_xyz.png',
+    pxx, freqs, bins, im = matplotlib.pyplot.specgram(data, nfft,fs)
+    matplotlib.pyplot.axis('off')
+    matplotlib.pyplot.savefig('sp_xyz.png',
         dpi=100, # Dots per inch
         frameon='false',
         aspect='normal',

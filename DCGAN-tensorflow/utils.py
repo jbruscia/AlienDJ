@@ -2,11 +2,14 @@
 Some codes from https://github.com/Newmu/dcgan_code
 """
 from __future__ import division
+import os
 import math
 import json
 import random
 import pprint
 import scipy.misc
+import scipy.io.wavfile
+import matplotlib.pyplot
 import numpy as np
 from time import gmtime, strftime
 from six.moves import xrange
@@ -14,23 +17,25 @@ from six.moves import xrange
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
+sampling_frequency = 48000
+
 pp = pprint.PrettyPrinter()
 
 get_stddev = lambda x, k_h, k_w: 1/math.sqrt(k_w*k_h*x.get_shape()[-1])
 
 def save_wav(sample, path):
-  rate = 48000
   size = sample.size
-  sample = sample.flatten.reshape(size/2, 2)
-  scipy.io.wavfile.write(path, rate, sample)
+  sample = sample.flatten
+  scipy.io.wavfile.write(path, sampling_frequency, sample)
 
 def show_all_variables():
   model_vars = tf.trainable_variables()
   slim.model_analyzer.analyze_vars(model_vars, print_info=True)
 
-def get_image(image_path, input_height, input_width,
-              resize_height=64, resize_width=64,
+def get_image(wav_path, input_height, input_width,
+              resize_height=128, resize_width=128,
               crop=True, grayscale=False):
+  image_path = graph_spectrogram(wav_path)
   image = imread(image_path, grayscale)
   return transform(image, input_height, input_width,
                    resize_height, resize_width, crop)
@@ -254,3 +259,22 @@ def image_manifold_size(num_images):
   manifold_w = int(np.ceil(np.sqrt(num_images)))
   assert manifold_h * manifold_w == num_images
   return manifold_h, manifold_w
+
+def graph_spectrogram(wav_file):
+  rate, data = get_wav_info(wav_file)
+  nfft = 256  # Length of the windowing segments
+  basename = os.path.splitext(wav_file)[0]
+  pxx, freqs, bins, im = matplotlib.pyplot.specgram(data, nfft,sampling_frequency)
+  matplotlib.pyplot.axis('off')
+  matplotlib.pyplot.savefig(basename+".png",
+    dpi=128, # Dots per inch
+    frameon='false',
+	figsize=(1,1),					  
+    aspect='normal',
+    bbox_inches='tight',
+    pad_inches=0) # Spectrogram saved as a .png 
+  return basename+".png"
+
+def get_wav_info(wav_file):
+  rate, data = scipy.io.wavfile.read(wav_file)
+  return rate, data
