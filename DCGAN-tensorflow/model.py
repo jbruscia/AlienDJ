@@ -75,11 +75,7 @@ class DCGAN(object):
       self.c_dim = self.data_X[0].shape[-1]
     else:
       self.data = glob(os.path.join("./data", self.dataset_name, self.input_fname_pattern))
-      imreadImg = imread(self.data[0]);
-      if len(imreadImg.shape) >= 3: #check if image is a non-grayscale image by checking channel number
-        self.c_dim = imread(self.data[0]).shape[-1]
-      else:
-        self.c_dim = 1
+    self.c_dim = 2
 
     self.grayscale = (self.c_dim == 1)
 
@@ -297,10 +293,9 @@ class DCGAN(object):
                 feed_dict={
                     self.z: sample_z,
                     self.inputs: sample_inputs,
-                },
-              )
-			
-			  save_wav(samples, './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+                    },
+                )
+              save_wav(samples, './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
               #save_images(samples, image_manifold_size(samples.shape[0]),
                     #'./{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
               print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
