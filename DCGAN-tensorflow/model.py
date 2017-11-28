@@ -15,7 +15,7 @@ def conv_out_size_same(size, stride):
 
 class DCGAN(object):
   def __init__(self, sess, input_height=128, input_width=128, crop=True,
-         batch_size=64, sample_num = 64, output_height=64, output_width=64,
+         batch_size=64, sample_num = 64, output_height=128, output_width=128,
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
          gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
          input_fname_pattern='*.wav', checkpoint_dir=None, sample_dir=None):
@@ -173,7 +173,7 @@ class DCGAN(object):
         sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
       else:
         sample_inputs = np.array(sample).astype(np.float32)
-  
+
     counter = 1
     start_time = time.time()
     could_load, checkpoint_counter = self.load(self.checkpoint_dir)
@@ -183,6 +183,8 @@ class DCGAN(object):
     else:
       print(" [!] Load failed...")
 
+	
+    print("epoch ")
     for epoch in xrange(config.epoch):
       if config.dataset == 'mnist':
         batch_idxs = min(len(self.data_X), config.train_size) // config.batch_size
@@ -190,7 +192,7 @@ class DCGAN(object):
         self.data = glob(os.path.join(
           "./data", config.dataset, self.input_fname_pattern))
         batch_idxs = min(len(self.data), config.train_size) // config.batch_size
-
+      
       for idx in xrange(0, batch_idxs):
         if config.dataset == 'mnist':
           batch_images = self.data_X[idx*config.batch_size:(idx+1)*config.batch_size]
@@ -295,6 +297,8 @@ class DCGAN(object):
                     self.inputs: sample_inputs,
                     },
                 )
+              print(epoch)
+              print(idx)
               save_wav(samples, './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
               #save_images(samples, image_manifold_size(samples.shape[0]),
                     #'./{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))

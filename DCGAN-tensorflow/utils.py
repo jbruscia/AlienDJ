@@ -25,7 +25,7 @@ get_stddev = lambda x, k_h, k_w: 1/math.sqrt(k_w*k_h*x.get_shape()[-1])
 
 def save_wav(sample, path):
   size = sample.size
-  sample = sample.flatten
+  sample = flatten(sample)
   scipy.io.wavfile.write(path, sampling_frequency, sample)
 
 def show_all_variables():
