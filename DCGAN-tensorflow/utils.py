@@ -2,14 +2,11 @@
 Some codes from https://github.com/Newmu/dcgan_code
 """
 from __future__ import division
-import os
 import math
 import json
 import random
 import pprint
 import scipy.misc
-import scipy.io.wavfile
-import matplotlib.pyplot
 import numpy as np
 from time import gmtime, strftime
 from six.moves import xrange
@@ -17,28 +14,36 @@ from six.moves import xrange
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
-sampling_frequency = 48000
-
 pp = pprint.PrettyPrinter()
 
 get_stddev = lambda x, k_h, k_w: 1/math.sqrt(k_w*k_h*x.get_shape()[-1])
 
-def save_wav(sample, path):
-  size = sample.size
-  sample = flatten(sample)
-  scipy.io.wavfile.write(path, sampling_frequency, sample)
+def wavread(path):
+  x, y = scipy.io.wavfile.read(path)
+  return y.reshape(-1, 1, 1)
+
+def get_wav(path, input_height, input_width,
+              resize_height=441000, resize_width=1,
+              crop=True, grayscale=False):
+  wav = wavread(path)
+  if crop:
+    wav = wav[:resize_height][0][0].reshape(-1, 1, 1)
+  return wav
 
 def show_all_variables():
   model_vars = tf.trainable_variables()
   slim.model_analyzer.analyze_vars(model_vars, print_info=True)
 
-def get_image(wav_path, input_height, input_width,
-              resize_height=128, resize_width=128,
+def get_image(image_path, input_height, input_width,
+              resize_height=64, resize_width=64,
               crop=True, grayscale=False):
-  image_path = graph_spectrogram(wav_path)
   image = imread(image_path, grayscale)
   return transform(image, input_height, input_width,
                    resize_height, resize_width, crop)
+
+def save_wavs(wavs, size, wav_path)
+  wav = np.squeeze(wavs)
+  scipy.io.wavfile.write(wav_path, 44100, wav)
 
 def save_images(images, size, image_path):
   return imsave(inverse_transform(images), size, image_path)
@@ -259,22 +264,3 @@ def image_manifold_size(num_images):
   manifold_w = int(np.ceil(np.sqrt(num_images)))
   assert manifold_h * manifold_w == num_images
   return manifold_h, manifold_w
-
-def graph_spectrogram(wav_file):
-  rate, data = get_wav_info(wav_file)
-  nfft = 256  # Length of the windowing segments
-  basename = os.path.splitext(wav_file)[0]
-  pxx, freqs, bins, im = matplotlib.pyplot.specgram(data, nfft,sampling_frequency)
-  matplotlib.pyplot.axis('off')
-  matplotlib.pyplot.savefig(basename+".png",
-    dpi=128, # Dots per inch
-    frameon='false',
-	figsize=(1,1),					  
-    aspect='normal',
-    bbox_inches='tight',
-    pad_inches=0) # Spectrogram saved as a .png 
-  return basename+".png"
-
-def get_wav_info(wav_file):
-  rate, data = scipy.io.wavfile.read(wav_file)
-  return rate, data

@@ -14,11 +14,11 @@ def conv_out_size_same(size, stride):
   return int(math.ceil(float(size) / float(stride)))
 
 class DCGAN(object):
-  def __init__(self, sess, input_height=128, input_width=128, crop=True,
-         batch_size=64, sample_num = 64, output_height=128, output_width=128,
+  def __init__(self, sess, input_height=441000, input_width=1, crop=True,
+         batch_size=64, sample_num = 64, output_height=441000, output_width=1,
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
-         gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
-         input_fname_pattern='*.wav', checkpoint_dir=None, sample_dir=None):
+         gfc_dim=1024, dfc_dim=1024, c_dim=1, dataset_name='default',
+         input_fname_pattern='*.jpg', checkpoint_dir=None, sample_dir=None):
     """
 
     Args:
@@ -70,12 +70,8 @@ class DCGAN(object):
     self.input_fname_pattern = input_fname_pattern
     self.checkpoint_dir = checkpoint_dir
 
-    if self.dataset_name == 'mnist':
-      self.data_X, self.data_y = self.load_mnist()
-      self.c_dim = self.data_X[0].shape[-1]
-    else:
-      self.data = glob(os.path.join("./data", self.dataset_name, self.input_fname_pattern))
-    self.c_dim = c_dim
+    self.data = glob(os.path.join("./data", self.dataset_name, self.input_fname_pattern))
+    self.c_dim = 1
 
     self.grayscale = (self.c_dim == 1)
 
@@ -156,24 +152,20 @@ class DCGAN(object):
 
     sample_z = np.random.uniform(-1, 1, size=(self.sample_num , self.z_dim))
     
-    if config.dataset == 'mnist':
-      sample_inputs = self.data_X[0:self.sample_num]
-      sample_labels = self.data_y[0:self.sample_num]
-    else:
-      sample_files = self.data[0:self.sample_num]
-      sample = [
-          get_image(sample_file,
+
+    sample_files = self.data[0:self.sample_num]
+    sample = [get_wav(sample_file,
                     input_height=self.input_height,
                     input_width=self.input_width,
                     resize_height=self.output_height,
                     resize_width=self.output_width,
                     crop=self.crop,
                     grayscale=self.grayscale) for sample_file in sample_files]
-      if (self.grayscale):
-        sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
-      else:
-        sample_inputs = np.array(sample).astype(np.float32)
-
+    if (self.grayscale):
+      sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
+    else:
+      sample_inputs = np.array(sample).astype(np.float32)
+  
     counter = 1
     start_time = time.time()
     could_load, checkpoint_counter = self.load(self.checkpoint_dir)
@@ -183,16 +175,10 @@ class DCGAN(object):
     else:
       print(" [!] Load failed...")
 
-	
-    print("epoch ")
     for epoch in xrange(config.epoch):
-      if config.dataset == 'mnist':
-        batch_idxs = min(len(self.data_X), config.train_size) // config.batch_size
-      else:      
-        self.data = glob(os.path.join(
-          "./data", config.dataset, self.input_fname_pattern))
-        batch_idxs = min(len(self.data), config.train_size) // config.batch_size
-      
+      self.data = glob(os.path.join("./data", config.dataset, self.input_fname_pattern))
+      batch_idxs = min(len(self.data), config.train_size) // config.batch_size
+
       for idx in xrange(0, batch_idxs):
         if config.dataset == 'mnist':
           batch_images = self.data_X[idx*config.batch_size:(idx+1)*config.batch_size]
@@ -200,7 +186,7 @@ class DCGAN(object):
         else:
           batch_files = self.data[idx*config.batch_size:(idx+1)*config.batch_size]
           batch = [
-              get_image(batch_file,
+              get_wav(batch_file,
                         input_height=self.input_height,
                         input_width=self.input_width,
                         resize_height=self.output_height,
@@ -285,7 +271,7 @@ class DCGAN(object):
                   self.y:sample_labels,
               }
             )
-            save_images(samples, image_manifold_size(samples.shape[0]),
+            save_wavs(samples, image_manifold_size(samples.shape[0]),
                   './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
             print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
           else:
@@ -295,13 +281,11 @@ class DCGAN(object):
                 feed_dict={
                     self.z: sample_z,
                     self.inputs: sample_inputs,
-                    },
-                )
-              print(epoch)
-              print(idx)
-              save_wav(samples, './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
-              #save_images(samples, image_manifold_size(samples.shape[0]),
-                    #'./{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+                },
+              )
+			  print(samples)
+              save_wavs(samples, image_manifold_size(samples.shape[0]),
+                    './{}/train_{:02d}_{:04d}.wav'.format(config.sample_dir, epoch, idx))
               print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
             except:
               print("one pic error!...")

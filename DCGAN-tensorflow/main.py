@@ -13,10 +13,10 @@ flags.DEFINE_float("learning_rate", 0.0002, "Learning rate of for adam [0.0002]"
 flags.DEFINE_float("beta1", 0.5, "Momentum term of adam [0.5]")
 flags.DEFINE_integer("train_size", np.inf, "The size of train images [np.inf]")
 flags.DEFINE_integer("batch_size", 64, "The size of batch images [64]")
-flags.DEFINE_integer("input_height", 128, "The size of image to use (will be center cropped). [108]")
-flags.DEFINE_integer("input_width", None, "The size of image to use (will be center cropped). If None, same value as input_height [None]")
-flags.DEFINE_integer("output_height", 128, "The size of the output images to produce [64]")
-flags.DEFINE_integer("output_width", None, "The size of the output images to produce. If None, same value as output_height [None]")
+flags.DEFINE_integer("input_height", 441000, "The size of image to use (will be center cropped). [441000]")
+flags.DEFINE_integer("input_width", 1, "The size of image to use (will be center cropped). If None, same value as input_height [1]")
+flags.DEFINE_integer("output_height", 441000, "The size of the output images to produce [441000]")
+flags.DEFINE_integer("output_width", 1, "The size of the output images to produce. If None, same value as output_height [None]")
 flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, lsun]")
 flags.DEFINE_string("input_fname_pattern", "*.wav", "Glob pattern of filename of input images [*]")
 flags.DEFINE_string("checkpoint_dir", "checkpoint", "Directory name to save the checkpoints [checkpoint]")
@@ -92,6 +92,6 @@ def main(_):
     # Below is codes for visualization
     OPTION = 1
     visualize(sess, dcgan, FLAGS, OPTION)
-	
+
 if __name__ == '__main__':
   tf.app.run()
