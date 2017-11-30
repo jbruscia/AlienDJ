@@ -15,10 +15,10 @@ def conv_out_size_same(size, stride):
 
 class DCGAN(object):
   def __init__(self, sess, input_height=441000, input_width=1, crop=True,
-         batch_size=64, sample_num = 64, output_height=441000, output_width=1,
+         batch_size=64, sample_num = 64, output_height=44100, output_width=1,
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
          gfc_dim=1024, dfc_dim=1024, c_dim=1, dataset_name='default',
-         input_fname_pattern='*.jpg', checkpoint_dir=None, sample_dir=None):
+         input_fname_pattern='*.wav', checkpoint_dir=None, sample_dir=None):
     """
 
     Args:
@@ -161,10 +161,10 @@ class DCGAN(object):
                     resize_width=self.output_width,
                     crop=self.crop,
                     grayscale=self.grayscale) for sample_file in sample_files]
-    if (self.grayscale):
-      sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
-    else:
-      sample_inputs = np.array(sample).astype(np.float32)
+    #if (self.grayscale):
+    #  sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
+    #else:
+    sample_inputs = np.array(sample).astype(np.float32)
   
     counter = 1
     start_time = time.time()
@@ -283,7 +283,7 @@ class DCGAN(object):
                     self.inputs: sample_inputs,
                 },
               )
-			  print(samples)
+              print(samples)
               save_wavs(samples, image_manifold_size(samples.shape[0]),
                     './{}/train_{:02d}_{:04d}.wav'.format(config.sample_dir, epoch, idx))
               print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 

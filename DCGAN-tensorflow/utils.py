@@ -41,7 +41,7 @@ def get_image(image_path, input_height, input_width,
   return transform(image, input_height, input_width,
                    resize_height, resize_width, crop)
 
-def save_wavs(wavs, size, wav_path)
+def save_wavs(wavs, size, wav_path):
   wav = np.squeeze(wavs)
   scipy.io.wavfile.write(wav_path, 44100, wav)
 
