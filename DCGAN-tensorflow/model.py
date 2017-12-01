@@ -152,7 +152,6 @@ class DCGAN(object):
 
     sample_z = np.random.uniform(-1, 1, size=(self.sample_num , self.z_dim))
     
-
     sample_files = self.data[0:self.sample_num]
     sample = [get_wav(sample_file,
                     input_height=self.input_height,
@@ -162,7 +161,7 @@ class DCGAN(object):
                     crop=self.crop,
                     grayscale=self.grayscale) for sample_file in sample_files]
     #if (self.grayscale):
-    #  sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
+    #  sample_inputs = np.array(sample).astype(np.float32)[:, :, None, None]
     #else:
     sample_inputs = np.array(sample).astype(np.float32)
   
@@ -174,12 +173,15 @@ class DCGAN(object):
       print(" [*] Load SUCCESS")
     else:
       print(" [!] Load failed...")
-
+    print("entering epoch")
     for epoch in xrange(config.epoch):
+      print("in epoch ")
       self.data = glob(os.path.join("./data", config.dataset, self.input_fname_pattern))
       batch_idxs = min(len(self.data), config.train_size) // config.batch_size
 
+      print("entering idx")
       for idx in xrange(0, batch_idxs):
+        print("in idx")
         if config.dataset == 'mnist':
           batch_images = self.data_X[idx*config.batch_size:(idx+1)*config.batch_size]
           batch_labels = self.data_y[idx*config.batch_size:(idx+1)*config.batch_size]
@@ -193,10 +195,10 @@ class DCGAN(object):
                         resize_width=self.output_width,
                         crop=self.crop,
                         grayscale=self.grayscale) for batch_file in batch_files]
-          if self.grayscale:
-            batch_images = np.array(batch).astype(np.float32)[:, :, :, None]
-          else:
-            batch_images = np.array(batch).astype(np.float32)
+          #if self.grayscale:
+          #  batch_images = np.array(batch).astype(np.float32)[:, :, :, None]
+          #else:
+          batch_images = np.array(batch).astype(np.float32)
 
         batch_z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
               .astype(np.float32)
@@ -237,6 +239,7 @@ class DCGAN(object):
               self.y: batch_labels
           })
         else:
+          print("before update D")
           # Update D network
           _, summary_str = self.sess.run([d_optim, self.d_sum],
             feed_dict={ self.inputs: batch_images, self.z: batch_z })

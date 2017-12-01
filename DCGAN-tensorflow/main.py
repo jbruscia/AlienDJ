@@ -15,7 +15,7 @@ flags.DEFINE_integer("train_size", np.inf, "The size of train images [np.inf]")
 flags.DEFINE_integer("batch_size", 64, "The size of batch images [64]")
 flags.DEFINE_integer("input_height", 441000, "The size of image to use (will be center cropped). [441000]")
 flags.DEFINE_integer("input_width", 1, "The size of image to use (will be center cropped). If None, same value as input_height [1]")
-flags.DEFINE_integer("output_height", 441000, "The size of the output images to produce [441000]")
+flags.DEFINE_integer("output_height", 44100, "The size of the output images to produce [441000]")
 flags.DEFINE_integer("output_width", 1, "The size of the output images to produce. If None, same value as output_height [None]")
 flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, lsun]")
 flags.DEFINE_string("input_fname_pattern", "*.wav", "Glob pattern of filename of input images [*]")
@@ -74,7 +74,7 @@ def main(_):
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir)
 
-    show_all_variables()
+    #show_all_variables()
 
     if FLAGS.train:
       dcgan.train(FLAGS)

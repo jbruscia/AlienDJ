@@ -7,6 +7,8 @@ import json
 import random
 import pprint
 import scipy.misc
+import scipy.io
+import scipy.io.wavfile
 import numpy as np
 from time import gmtime, strftime
 from six.moves import xrange
@@ -22,12 +24,12 @@ def wavread(path):
   x, y = scipy.io.wavfile.read(path)
   return y.reshape(-1, 1, 1)
 
-def get_wav(path, input_height, input_width,
-              resize_height=441000, resize_width=1,
-              crop=True, grayscale=False):
+def get_wav(path, input_height, input_width, resize_height, resize_width, crop=True, grayscale=False):
   wav = wavread(path)
   if crop:
-    wav = wav[:resize_height][0][0].reshape(-1, 1, 1)
+    wav = wav.flatten()
+    wav = wav[:resize_height].reshape(-1, 1, 1)
+  wav = np.array(wav)/32767
   return wav
 
 def show_all_variables():
